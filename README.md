@@ -4,7 +4,7 @@ Save file manager for Gensokyo no Nazo
 
 Download the latest release from [here](https://github.com/shadax1/gnazo_save_manager/releases) into your game folder. You can either start the game followed by the practice tool or start the practice tool which will automatically start the game.
 
-**Note:** your game must be version 1.00 for the 
+**Note:** your game must be version 1.00 for the tool to display 'Speed', 'HP', 'Framecount/Previous' values. Otherwise, the save file management feature can also be used with 1.01.
 
 ![demo pic](https://raw.githubusercontent.com/shadax1/gnazo_save_manager/master/demo%20pic.png)
 
