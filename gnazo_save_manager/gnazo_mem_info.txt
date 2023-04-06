@@ -1,0 +1,166 @@
+--general--
+ReadProcessMemory((int)processHandle, (int)p.Modules[0].BaseAddress + 0x000000, bufferRead, bufferRead.Length, ref bytesRead);
+
+gnazo.exe+852FC0 -> save number
+gnazo.exe+409776 -> value 193 = NEW GAME frame
+gnazo.exe+850090 -> 0 = main menu
+					1 = save choice
+					2 = difficulty choice
+					3 = options
+					4 = key config
+					5 = extra
+					6 = boss challenge
+					7 = medal data
+					10 = controller select
+
+gnazo.exe+4408E4 -> loading flag
+gnazo.exe+44092D -> not loading flag
+
+gnazo.exe+33C690 -> room id
+gnazo.exe+33C694 -> room id
+
+gnazo.exe+927BF1 -> x pos
+gnazo.exe+927BF5 -> y pos
+
+
+gnazo.exe+B8D0E4 -> timer  
+gnazo.exe+928578 -> room timer
+(3600 frames	= 1 minute = 60 seconds
+ 60 frames		= 1 second
+ 1 frame 		= 0.01666666666666666666666666666667 second)
+
+result = read frame byte;
+seconds = result / 60;
+var timespan = TimeSpan.FromSeconds(seconds); //timespan.ToString(@"hh\:mm\:ss")
+
+
+gnazo.exe+84FFDC -> lifecount
+gnazo.exe+B83F4C -> # of rooms visited
+gnazo.exe+91AFB4 -> score
+gnazo.exe+B83FA4 -> wooden chests
+gnazo.exe+B83FA8 -> copper chests
+gnazo.exe+B83FAC -> silver chests
+gnazo.exe+B83FB0 -> golden chests
+gnazo.exe+B855DC -> red orbs
+gnazo.exe+B33AE0 -> blue orbs
+gnazo.exe+91BF44 -> green orbs
+gnazo.exe+B33B3C -> glowing red orbs
+gnazo.exe+8531E0 -> glowing blue orbs
+
+gnazo.exe+B8D0EC -> current character
+
+gnazo.exe+9285CD -> using special? (1/0)
+gnazo.exe+928575 -> using attack? (1/0)
+gnazo.exe+927C64 -> facing direction? (right 1/left 0)
+gnazo.exe+9285C8 -> amount of frames special was held
+
+--speed values--
+gnazo.exe+928596 (2 bytes)
+
+Reimu		-256 +512 => 256
+Marisa		-247 +521 => 274
+Alice		-252 +516 => 264
+Cirno		-237 +531 => 294
+Meiling		-256 +512 => 256
+Patchouli	-276 +492 => 216
+Sakuya		-250 +518 => 268
+Remilia		-228 +540 => 312
+Youmu		-228 +540 => 312
+Yuyuko		-263 +505 => 242
+Rumia		-240 +528 => 288
+Daiyousei	-250 +518 => 268
+Flandre		-224 +544 => 320
+Yukari		-256 +512 => 256
+Keine		-252 +516 => 264
+Tewi		-240 +528 => 288
+Reisen		-247 +521 => 274
+Eirin		-256 +512 => 256
+Kaguya		-269 +499 => 230
+Mokou		-250 +518 => 268
+Nitori		-253 +515 => 262
+Aya			-244 +524 => 280
+Sanae		-253 +515 => 262
+Kanako		-263 +505 => 242
+Suwako		-240 +528 => 288
+
+--input--
+gnazo.exe+8663A8 (2 byte)
+
+down 		1
+left		2
+right		4
+up			8
+attack		16
+jump		32
+special		64
+party menu	128
+main menu	256
+
+--character info--
+string[] characters = { "Reimu", "Marisa", "Alice", "Cirno", "Meiling", "Patchouli", "Sakuya", "Remilia", "Youmu", "Yuyuko", "Rumia", "Daiyousei", "Flandre", "Yukari", "Keine", "Tewi", "Reisen", "Eirin", "Kaguya", "Mokou", "Nitori", "Aya", "Sanae", "Kanako", "Suwako" };
+
+gnazo.exe+8533D8 start (reimu's curHP)
+
+gnazo.exe+8533D8+(44*idChar)+offset
+
+44		=> length of char info
+idChar 	=> starts from 0 (reimu) up to 24 (suwako) -> gnazo.exe+B8D0EC
+offset	=> one of the bytes listed below
+
+gnazo.exe+8533D8+(44*16)+10 => reisen's maxRP for instance
+
+0  - 0x00 - curHP				-	gnazo.exe+8533D8+(44*0)+0
+4  - 0x04 - maxHP				-	gnazo.exe+8533D8+(44*0)+4
+14 - 0x0E - curRP1*2 			-	gnazo.exe+8533D8+(44*0)+14
+16 - 0x10 - maxRP				-	gnazo.exe+8533D8+(44*0)+16
+20 - 0x14 - red orbs			-	gnazo.exe+8533D8+(44*0)+20
+24 - 0x18 - glowing red orbs	-	gnazo.exe+8533D8+(44*0)+24
+28 - 0x1C - blue orbs			-	gnazo.exe+8533D8+(44*0)+28
+32 - 0x20 - glowing blue orbs	-	gnazo.exe+8533D8+(44*0)+32
+36 - 0x24 - green orbs			-	gnazo.exe+8533D8+(44*0)+36
+40 - 0x28 - InPartyFlag			-	gnazo.exe+8533D8+(44*0)+40
+41 - 0x29 - DeadOrAliveFlag		-	gnazo.exe+8533D8+(44*0)+41
+
+--todo list--
+input display
+global timer											//ok
+room timer (show previous room time)					//resets when attacking...
+display currently used character stats					//
+make a character edit option (is it necessary?)
+make save loading more efficient (for any save slot)
+add menustrip with infos
+remember app x/y position
+
+
+
+#region process & address
+//function imports
+[DllImport("kernel32.dll")]
+public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+[DllImport("kernel32.dll")]
+public static extern bool ReadProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
+[DllImport("kernel32.dll", SetLastError = true)]
+static extern bool WriteProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesWritten);
+
+//access values
+const int PROCESS_ALL_ACCESS = 0x1F0FFF;
+const int PROCESS_WM_READ = 0x0010;
+const int PROCESS_VM_WRITE = 0x0020;
+const int PROCESS_VM_OPERATION = 0x0008;
+
+//process handle
+static Process p = Process.GetProcessesByName("gnazo")[0];
+IntPtr processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, p.Id);
+
+//amount of bytes written/read
+private int bytesWritten = 0;
+private int bytesRead = 0;
+#endregion
+
+
+byte[] bufferRead = new byte[2];
+int result = 0;
+
+ReadProcessMemory((int)processHandle, (int)p.Modules[0].BaseAddress + 0x852FC0, bufferRead, bufferRead.Length, ref bytesRead);
+result = BitConverter.ToInt16(bufferRead, 0);
+label.Text = "Test: " + result;
